@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block title %}EduGenie - Log In{% endblock %}
+
+{% block page_title %}Student Login{% endblock %}
+{% block page_subtitle %}Access your personalized study portal{% endblock %}
+
+{% block content %}
+<div class="auth-wrapper">
+    <div class="auth-container">
+        <div class="glass-card">
+            <div class="auth-header">
+                <div class="auth-logo">EG</div>
+                <h2 class="auth-title">Welcome Back</h2>
+                <p class="auth-subtitle">Log in to continue your learning journey</p>
+            </div>
+            
+            <form id="login-form">
+                <div class="form-group">
+                    <label class="form-label" for="email">Email Address</label>
+                    <input class="form-control" type="email" id="email" required placeholder="name@example.com">
+                </div>
+                
+                <div class="form-group" style="margin-bottom: 24px;">
+                    <label class="form-label" for="password">Password</label>
+                    <input class="form-control" type="password" id="password" required placeholder="Enter password">
+                </div>
+                
+                <button type="submit" class="btn-primary" style="width: 100%;">
+                    <i class="fa-solid fa-right-to-bracket"></i> Sign In
+                </button>
+            </form>
+            
+            <div class="auth-footer">
+                Don't have an account? <a href="/signup" class="auth-link">Sign up here</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

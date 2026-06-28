@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}EduGenie - AI Learning Assistant{% endblock %}</title>
+    
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="/static/css/style.css">
+    
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Chart.js for statistics -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    {% block head %}{% endblock %}
+</head>
+<body>
+    <!-- Toast notifications -->
+    <div id="toast-container"></div>
+
+    <div class="layout-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <div class="sidebar-logo">EG</div>
+                <div class="sidebar-title">EduGenie</div>
+            </div>
+            
+            <ul class="sidebar-menu">
+                {% if user %}
+                    <li class="menu-item">
+                        <a href="/dashboard"><i class="fa-solid fa-chart-pie"></i> Dashboard</a>
+                    </li>
+                    <li class="menu-item">
+                        <a href="/qa"><i class="fa-solid fa-circle-question"></i> Q&A Assistant</a>
+                    </li>
+                    <li class="menu-item">
+                        <a href="/explain"><i class="fa-solid fa-brain"></i> Concept Explainer</a>
+                    </li>
+                    <li class="menu-item">
+                        <a href="/quiz"><i class="fa-solid fa-puzzle-piece"></i> Quiz Generator</a>
+                    </li>
+                    <li class="menu-item">
+                        <a href="/summary"><i class="fa-solid fa-file-invoice"></i> Content Summarizer</a>
+                    </li>
+                    <li class="menu-item">
+                        <a href="/roadmap"><i class="fa-solid fa-route"></i> Roadmap Builder</a>
+                    </li>
+                    <li class="menu-item">
+                        <a href="/history"><i class="fa-solid fa-clock-rotate-left"></i> Study History</a>
+                    </li>
+                    <li class="menu-item">
+                        <a href="/profile"><i class="fa-solid fa-user-gear"></i> User Profile</a>
+                    </li>
+                {% else %}
+                    <li class="menu-item">
+                        <a href="/"><i class="fa-solid fa-house"></i> Home</a>
+                    </li>
+                    <li class="menu-item">
+                        <a href="/login"><i class="fa-solid fa-right-to-bracket"></i> Log In</a>
+                    </li>
+                    <li class="menu-item">
+                        <a href="/signup"><i class="fa-solid fa-user-plus"></i> Sign Up</a>
+                    </li>
+                {% endif %}
+            </ul>
+            
+            {% if user %}
+                <div class="sidebar-footer">
+                    <div class="user-profile-badge" style="margin-bottom: 12px;">
+                        <div class="user-avatar">
+                            {{ user.UserName[0].upper() if user.UserName else 'U' }}
+                        </div>
+                        <div class="user-info">
+                            <div class="user-name">{{ user.UserName }}</div>
+                            <div class="user-role">Student / Educator</div>
+                        </div>
+                    </div>
+                    <a href="/api/auth/logout-redirect" class="btn-secondary" style="display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 8px 12px; font-size: 0.85rem;">
+                        <i class="fa-solid fa-right-from-bracket"></i> Log Out
+                    </a>
+                </div>
+            {% endif %}
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Topbar Header -->
+            <header class="topbar">
+                <div>
+                    <h2 class="page-title">{% block page_title %}Welcome to EduGenie{% endblock %}</h2>
+                    <p class="page-subtitle">{% block page_subtitle %}Your AI-powered learning workspace{% endblock %}</p>
+                </div>
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <!-- Quick Stats Badges -->
+                    {% if user %}
+                        <span class="badge" style="background: rgba(16, 185, 129, 0.1); border-color: var(--color-success); color: var(--color-success); font-weight: 500;">
+                            <i class="fa-solid fa-bolt"></i> Learning Active
+                        </span>
+                    {% endif %}
+                </div>
+            </header>
+
+            <!-- Page Specific Content -->
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+
+    <!-- Application Script -->
+    <script src="/static/js/main.js"></script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

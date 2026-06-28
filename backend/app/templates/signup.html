@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block title %}EduGenie - Sign Up{% endblock %}
+
+{% block page_title %}Create Student Account{% endblock %}
+{% block page_subtitle %}Start your AI-powered learning experience today{% endblock %}
+
+{% block content %}
+<div class="auth-wrapper">
+    <div class="auth-container">
+        <div class="glass-card">
+            <div class="auth-header">
+                <div class="auth-logo">EG</div>
+                <h2 class="auth-title">Create Account</h2>
+                <p class="auth-subtitle">Join thousands of students and educators</p>
+            </div>
+            
+            <form id="signup-form">
+                <div class="form-group">
+                    <label class="form-label" for="username">Full Name</label>
+                    <input class="form-control" type="text" id="username" required placeholder="John Doe">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="email">Email Address</label>
+                    <input class="form-control" type="email" id="email" required placeholder="name@example.com">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="password">Password (min 6 characters)</label>
+                    <input class="form-control" type="password" id="password" required placeholder="Create password">
+                </div>
+                
+                <div class="form-group" style="margin-bottom: 24px;">
+                    <label class="form-label" for="confirm-password">Confirm Password</label>
+                    <input class="form-control" type="password" id="confirm-password" required placeholder="Repeat password">
+                </div>
+                
+                <button type="submit" class="btn-primary" style="width: 100%;">
+                    <i class="fa-solid fa-user-plus"></i> Register Account
+                </button>
+            </form>
+            
+            <div class="auth-footer">
+                Already registered? <a href="/login" class="auth-link">Log in here</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

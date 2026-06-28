@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block title %}EduGenie - Concept Explainer{% endblock %}
+
+{% block page_title %}Concept Explainer{% endblock %}
+{% block page_subtitle %}Simplifying complex terminology and academic subjects{% endblock %}
+
+{% block content %}
+<div class="module-container">
+    <!-- Topic Input Form -->
+    <div class="glass-card module-input-card">
+        <h3 style="font-size: 1.2rem; margin-bottom: 20px; border-bottom: 1px solid var(--glass-border); padding-bottom: 12px;">Explain a Concept</h3>
+        <form id="explain-form">
+            <div class="form-group">
+                <label class="form-label" for="topic-input">Concept or Topic Name</label>
+                <input class="form-control" type="text" id="topic-input" required placeholder="e.g. Recursion, Dark Matter, Inflation, CRISPR">
+            </div>
+            <button type="submit" class="btn-primary" style="width: 100%;">
+                <i class="fa-solid fa-brain"></i> Explain Simply
+            </button>
+        </form>
+    </div>
+    
+    <!-- AI Explanation Card -->
+    <div class="glass-card module-output-card" id="explain-output-card">
+        <div class="output-placeholder">
+            <div class="output-placeholder-icon" style="color: rgba(139, 92, 246, 0.1);"><i class="fa-solid fa-brain"></i></div>
+            <h4>Waiting for Topic</h4>
+            <p style="font-size: 0.85rem; color: var(--color-text-muted); margin-top: 4px;">Enter a topic on the left to generate plain-language explanations.</p>
+        </div>
+    </div>
+</div>
+{% endblock %}

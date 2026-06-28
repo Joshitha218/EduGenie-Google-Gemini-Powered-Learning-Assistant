@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block title %}EduGenie - Roadmap Builder{% endblock %}
+
+{% block page_title %}Roadmap Builder{% endblock %}
+{% block page_subtitle %}Generate structured study pathways and career directions for any skill{% endblock %}
+
+{% block content %}
+<div class="module-container">
+    <!-- Roadmap Skill input form -->
+    <div class="glass-card module-input-card">
+        <h3 style="font-size: 1.2rem; margin-bottom: 20px; border-bottom: 1px solid var(--glass-border); padding-bottom: 12px;">Roadmap Builder</h3>
+        <form id="roadmap-form">
+            <div class="form-group" style="margin-bottom: 24px;">
+                <label class="form-label" for="skill-input">Skill or Topic to Learn</label>
+                <input class="form-control" type="text" id="skill-input" required placeholder="e.g. Machine Learning, Public Speaking, React, Piano">
+            </div>
+            <button type="submit" class="btn-primary" style="width: 100%;">
+                <i class="fa-solid fa-route"></i> Build Roadmap
+            </button>
+        </form>
+    </div>
+    
+    <!-- AI Roadmap output -->
+    <div class="glass-card module-output-card" id="roadmap-output-card">
+        <div class="output-placeholder">
+            <div class="output-placeholder-icon" style="color: rgba(59, 130, 246, 0.1);"><i class="fa-solid fa-route"></i></div>
+            <h4>Waiting for Skill</h4>
+            <p style="font-size: 0.85rem; color: var(--color-text-muted); margin-top: 4px;">Enter a topic or skill on the left to structure beginner, intermediate, and advanced courses.</p>
+        </div>
+    </div>
+</div>
+{% endblock %}

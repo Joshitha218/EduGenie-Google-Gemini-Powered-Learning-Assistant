@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block title %}EduGenie - Interactive Quiz{% endblock %}
+
+{% block page_title %}Interactive Quiz{% endblock %}
+{% block page_subtitle %}Test your knowledge with AI generated multiple-choice questions{% endblock %}
+
+{% block content %}
+<div class="module-container">
+    <!-- Quiz Input Configuration -->
+    <div class="glass-card module-input-card">
+        <h3 style="font-size: 1.2rem; margin-bottom: 20px; border-bottom: 1px solid var(--glass-border); padding-bottom: 12px;">Quiz Setup</h3>
+        <form id="quiz-form">
+            <div class="form-group">
+                <label class="form-label" for="quiz-topic">Quiz Topic</label>
+                <input class="form-control" type="text" id="quiz-topic" required placeholder="e.g. World War II, Calculus, Python OOP, Human Anatomy">
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label" for="quiz-difficulty">Difficulty Level</label>
+                <select class="form-control" id="quiz-difficulty">
+                    <option value="Easy">Easy</option>
+                    <option value="Medium" selected>Medium</option>
+                    <option value="Hard">Hard</option>
+                </select>
+            </div>
+            
+            <div class="form-group" style="margin-bottom: 24px;">
+                <label class="form-label" for="quiz-count">Number of Questions</label>
+                <select class="form-control" id="quiz-count">
+                    <option value="3">3 Questions</option>
+                    <option value="5" selected>5 Questions</option>
+                    <option value="10">10 Questions</option>
+                </select>
+            </div>
+            
+            <button type="submit" class="btn-primary" style="width: 100%;">
+                <i class="fa-solid fa-puzzle-piece"></i> Generate Quiz
+            </button>
+        </form>
+    </div>
+    
+    <!-- Active Quiz card -->
+    <div class="glass-card module-output-card" id="quiz-output-card">
+        <div class="output-placeholder">
+            <div class="output-placeholder-icon" style="color: rgba(59, 130, 246, 0.1);"><i class="fa-solid fa-puzzle-piece"></i></div>
+            <h4>Waiting to Start</h4>
+            <p style="font-size: 0.85rem; color: var(--color-text-muted); margin-top: 4px;">Configure and generate a quiz on the left to begin testing.</p>
+        </div>
+    </div>
+</div>
+{% endblock %}

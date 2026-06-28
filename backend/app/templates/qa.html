@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block title %}EduGenie - Q&A Assistant{% endblock %}
+
+{% block page_title %}Q&A Assistant{% endblock %}
+{% block page_subtitle %}Ask educational questions and study related concepts{% endblock %}
+
+{% block content %}
+<div class="module-container">
+    <!-- Question Input Form -->
+    <div class="glass-card module-input-card">
+        <h3 style="font-size: 1.2rem; margin-bottom: 20px; border-bottom: 1px solid var(--glass-border); padding-bottom: 12px;">Query Assistant</h3>
+        <form id="qa-form">
+            <div class="form-group">
+                <label class="form-label" for="question-input">Your Question</label>
+                <textarea class="form-control" id="question-input" required placeholder="Type your question here... (e.g. How does photosynthesis convert sunlight into energy? or Explain the difference between stack and heap memory.)"></textarea>
+            </div>
+            <button type="submit" class="btn-primary" style="width: 100%;">
+                <i class="fa-solid fa-paper-plane"></i> Submit to Gemini
+            </button>
+        </form>
+    </div>
+    
+    <!-- AI Response Display Card -->
+    <div class="glass-card module-output-card" id="qa-output-card">
+        <div class="output-placeholder">
+            <div class="output-placeholder-icon"><i class="fa-solid fa-circle-question"></i></div>
+            <h4>Waiting for Question</h4>
+            <p style="font-size: 0.85rem; color: var(--color-text-muted); margin-top: 4px;">Submit a query on the left to see answers and study paths.</p>
+        </div>
+    </div>
+</div>
+{% endblock %}

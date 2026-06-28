@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+
+{% block title %}EduGenie - Student Dashboard{% endblock %}
+
+{% block page_title %}Student Dashboard{% endblock %}
+{% block page_subtitle %}Review your learning statistics and recent activities{% endblock %}
+
+{% block content %}
+<!-- Statistics Row -->
+<div class="stats-grid">
+    <div class="glass-card stat-card">
+        <div class="stat-icon" style="background: rgba(108, 99, 255, 0.1);"><i class="fa-solid fa-graduation-cap"></i></div>
+        <div>
+            <div class="stat-val" id="total-queries">0</div>
+            <div class="stat-label">Total AI Queries</div>
+        </div>
+    </div>
+    <div class="glass-card stat-card">
+        <div class="stat-icon" style="background: rgba(139, 92, 246, 0.1); color: var(--color-purple);"><i class="fa-solid fa-circle-question"></i></div>
+        <div>
+            <div class="stat-val" id="qa-count">0</div>
+            <div class="stat-label">Questions Asked</div>
+        </div>
+    </div>
+    <div class="glass-card stat-card">
+        <div class="stat-icon" style="background: rgba(59, 130, 246, 0.1); color: var(--color-blue);"><i class="fa-solid fa-puzzle-piece"></i></div>
+        <div>
+            <div class="stat-val" id="quiz-count">0</div>
+            <div class="stat-label">Quizzes Created</div>
+        </div>
+    </div>
+    <div class="glass-card stat-card">
+        <div class="stat-icon" style="background: rgba(16, 185, 129, 0.1); color: var(--color-success);"><i class="fa-solid fa-route"></i></div>
+        <div>
+            <div class="stat-val" id="roadmap-count">0</div>
+            <div class="stat-label">Roadmaps Built</div>
+        </div>
+    </div>
+</div>
+
+<!-- Main Dashboard Grid -->
+<div class="module-container" style="margin-bottom: 32px;">
+    <!-- Chart Container -->
+    <div class="glass-card" style="display: flex; flex-direction: column; min-height: 380px;">
+        <h3 style="font-size: 1.2rem; margin-bottom: 20px; font-family: var(--font-heading); border-bottom: 1px solid var(--glass-border); padding-bottom: 12px;">Learning Breakdown</h3>
+        <div style="flex-grow: 1; position: relative; height: 260px;">
+            <canvas id="usageChart"></canvas>
+        </div>
+    </div>
+    
+    <!-- Recent Activity -->
+    <div class="glass-card" style="display: flex; flex-direction: column; min-height: 380px;">
+        <h3 style="font-size: 1.2rem; margin-bottom: 20px; font-family: var(--font-heading); border-bottom: 1px solid var(--glass-border); padding-bottom: 12px;">Recent Study Activity</h3>
+        <ul id="recent-activity-list" style="list-style: none; flex-grow: 1; overflow-y: auto; display: flex; flex-direction: column;">
+            <li style="padding: 24px; text-align: center; color: var(--color-text-muted);">
+                <div class="spinner" style="margin-bottom: 10px;"></div>
+                <p>Loading activity logs...</p>
+            </li>
+        </ul>
+    </div>
+</div>
+
+<!-- Quick Launch Grid -->
+<h3 style="font-size: 1.3rem; margin-bottom: 20px; font-family: var(--font-heading);">Study Assistants</h3>
+<div class="features-grid" style="margin-top: 0; margin-bottom: 40px;">
+    <a href="/qa" class="glass-card" style="display: block; cursor: pointer;">
+        <div class="feature-icon"><i class="fa-solid fa-circle-question"></i></div>
+        <h4>Ask Q&A</h4>
+        <p style="font-size: 0.8rem; color: var(--color-text-muted); margin-top: 6px;">Query concepts, code syntax, or academic formulas.</p>
+    </a>
+    <a href="/explain" class="glass-card" style="display: block; cursor: pointer;">
+        <div class="feature-icon" style="color: var(--color-purple);"><i class="fa-solid fa-brain"></i></div>
+        <h4>Explain Simply</h4>
+        <p style="font-size: 0.8rem; color: var(--color-text-muted); margin-top: 6px;">Simplify convoluted theoretical academic topics.</p>
+    </a>
+    <a href="/quiz" class="glass-card" style="display: block; cursor: pointer;">
+        <div class="feature-icon" style="color: var(--color-blue);"><i class="fa-solid fa-puzzle-piece"></i></div>
+        <h4>Test Knowledge</h4>
+        <p style="font-size: 0.8rem; color: var(--color-text-muted); margin-top: 6px;">Generate immediate MCQs and evaluate answers.</p>
+    </a>
+    <a href="/summary" class="glass-card" style="display: block; cursor: pointer;">
+        <div class="feature-icon" style="color: var(--color-success);"><i class="fa-solid fa-file-invoice"></i></div>
+        <h4>Summarize Text</h4>
+        <p style="font-size: 0.8rem; color: var(--color-text-muted); margin-top: 6px;">Condense study sheets and extract important notes.</p>
+    </a>
+</div>
+{% endblock %}

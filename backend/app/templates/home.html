@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+
+{% block title %}EduGenie - Learn Smarter with AI{% endblock %}
+
+{% block page_title %}EduGenie Landing Workspace{% endblock %}
+{% block page_subtitle %}Elevate your intelligence using Google Gemini AI{% endblock %}
+
+{% block content %}
+<div class="hero-section">
+    <h1 class="hero-heading">Learn Smarter with EduGenie</h1>
+    <p class="hero-subheading">A Google Gemini Powered Learning Assistant designed to generate study guides, evaluate concepts, formulate quizzes, and build personalized roadmaps.</p>
+    
+    <div class="hero-cta">
+        {% if user %}
+            <a href="/dashboard" class="btn-primary"><i class="fa-solid fa-chart-line"></i> Go to Dashboard</a>
+        {% else %}
+            <a href="/signup" class="btn-primary"><i class="fa-solid fa-rocket"></i> Start Learning Free</a>
+            <a href="/login" class="btn-secondary"><i class="fa-solid fa-right-to-bracket"></i> Student Login</a>
+        {% endif %}
+    </div>
+    
+    <!-- Feature Cards Grid -->
+    <div class="features-grid">
+        <div class="glass-card">
+            <div class="feature-icon"><i class="fa-solid fa-circle-question"></i></div>
+            <h3>Concept Q&A</h3>
+            <p style="font-size: 0.88rem; color: var(--color-text-muted); margin-top: 10px; line-height: 1.5;">Ask any academic question and receive structured explanations, related concepts, and deep context instantly.</p>
+        </div>
+        <div class="glass-card">
+            <div class="feature-icon"><i class="fa-solid fa-brain"></i></div>
+            <h3>Simple Explanations</h3>
+            <p style="font-size: 0.88rem; color: var(--color-text-muted); margin-top: 10px; line-height: 1.5;">Explain complex topics in highly readable, simple terms using local CPU-optimized NLP models.</p>
+        </div>
+        <div class="glass-card">
+            <div class="feature-icon"><i class="fa-solid fa-puzzle-piece"></i></div>
+            <h3>Quiz Generator</h3>
+            <p style="font-size: 0.88rem; color: var(--color-text-muted); margin-top: 10px; line-height: 1.5;">Instantly compile interactive multiple-choice quizzes complete with grading and detailed corrections.</p>
+        </div>
+        <div class="glass-card">
+            <div class="feature-icon"><i class="fa-solid fa-file-invoice"></i></div>
+            <h3>PDF Summarizer</h3>
+            <p style="font-size: 0.88rem; color: var(--color-text-muted); margin-top: 10px; line-height: 1.5;">Paste study notes or upload text PDFs to extract summaries, crucial formulas, definitions, and exam notes.</p>
+        </div>
+        <div class="glass-card">
+            <div class="feature-icon"><i class="fa-solid fa-route"></i></div>
+            <h3>Roadmap Builder</h3>
+            <p style="font-size: 0.88rem; color: var(--color-text-muted); margin-top: 10px; line-height: 1.5;">Generate personalized stage-by-stage learning paths, capstone projects, and career advice for any skill.</p>
+        </div>
+    </div>
+    
+    <!-- Statistics Section -->
+    <h2 style="margin-top: 80px; margin-bottom: 30px; font-family: var(--font-heading); text-align: center;">Trusted by Lifelong Learners</h2>
+    <div class="stats-grid" style="max-width: 800px; margin: 0 auto;">
+        <div class="glass-card stat-card">
+            <div class="stat-icon" style="background: rgba(108, 99, 255, 0.1);"><i class="fa-solid fa-users"></i></div>
+            <div>
+                <div class="stat-val">10K+</div>
+                <div class="stat-label">Active Self-Learners</div>
+            </div>
+        </div>
+        <div class="glass-card stat-card">
+            <div class="stat-icon" style="background: rgba(16, 185, 129, 0.1); color: var(--color-success);"><i class="fa-solid fa-circle-check"></i></div>
+            <div>
+                <div class="stat-val">99.8%</div>
+                <div class="stat-label">Concept Explanations</div>
+            </div>
+        </div>
+        <div class="glass-card stat-card">
+            <div class="stat-icon" style="background: rgba(59, 130, 246, 0.1); color: var(--color-blue);"><i class="fa-solid fa-graduation-cap"></i></div>
+            <div>
+                <div class="stat-val">1.2M+</div>
+                <div class="stat-label">Quizzes Answered</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<footer style="margin-top: auto; border-top: 1px solid var(--glass-border); padding: 24px; text-align: center; font-size: 0.85rem; color: var(--color-text-muted);">
+    <p>&copy; 2026 EduGenie. Powered by Google Gemini 1.5 Pro & LaMini-Flan-T5.</p>
+</footer>
+{% endblock %}
