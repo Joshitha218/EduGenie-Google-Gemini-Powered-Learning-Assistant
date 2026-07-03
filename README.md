@@ -30,7 +30,6 @@ graph TD
 ---
 
 ## Entity-Relationship (ER) Diagram
-
 ```mermaid
 erDiagram
     USER {
