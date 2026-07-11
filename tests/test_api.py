@@ -8,6 +8,7 @@ from sqlalchemy.orm import sessionmaker
 # Set environment variables for testing
 os.environ["DATABASE_URL"] = "sqlite:///./test_edugenie.db"
 os.environ["SECRET_KEY"] = "test_secret_key_12345"
+os.environ["GEMINI_API_KEY"] = ""
 
 from backend.app.main import app
 from backend.app.database import Base, get_db

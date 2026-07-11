@@ -1,5 +1,6 @@
 import threading
 import logging
+from importlib.util import find_spec
 from typing import Dict, Any, List
 from backend.app.config import settings
 
@@ -20,6 +21,11 @@ def load_lamini_model():
         return _lamini_pipeline
         
     if _is_loading:
+        return None
+
+    if find_spec("torch") is None:
+        _loading_error = "PyTorch is not installed."
+        logger.warning("PyTorch is not installed. Skipping LaMini load and using fallback responses.")
         return None
         
     _is_loading = True

@@ -10,7 +10,9 @@ from backend.app.config import settings
 logger = logging.getLogger(__name__)
 
 def _get_gemini_api_key() -> str:
-    return settings.GEMINI_API_KEY or os.environ.get("GEMINI_API_KEY", "")
+    if "GEMINI_API_KEY" in os.environ:
+        return os.environ.get("GEMINI_API_KEY", "").strip()
+    return (settings.GEMINI_API_KEY or "").strip()
 
 # Configure Gemini API
 def initialize_gemini():
@@ -47,7 +49,8 @@ def _call_gemini_with_retry(prompt: str, model_name: str = "gemini-2.5-flash", j
                 
             response = model.generate_content(
                 prompt,
-                generation_config=generation_config
+                generation_config=generation_config,
+                request_options={"timeout": 20}
             )
             if response and response.text:
                 return response.text
