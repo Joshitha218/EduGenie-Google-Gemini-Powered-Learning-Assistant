@@ -583,12 +583,29 @@ function initSummaryPage() {
     const notesInput = document.getElementById('notes-input');
     
     if (!form) return;
+
+    if (notesInput && fileInput) {
+        notesInput.addEventListener('input', () => {
+            if (notesInput.value.trim()) fileInput.value = '';
+        });
+        fileInput.addEventListener('change', () => {
+            if (fileInput.files.length > 0) notesInput.value = '';
+        });
+    }
     
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
+        const notes = notesInput ? notesInput.value.trim() : '';
+        const hasFile = fileInput && fileInput.files.length > 0;
+
+        if (notes && hasFile) {
+            renderSummaryError("Please use either pasted notes or a PDF upload, not both.");
+            showToast("Please use only one input method.", "error");
+            return;
+        }
         
         // If file exists, do PDF upload summary
-        if (fileInput && fileInput.files.length > 0) {
+        if (hasFile) {
             const file = fileInput.files[0];
             const formData = new FormData();
             formData.append('file', file);
@@ -607,16 +624,19 @@ function initSummaryPage() {
                 if (res.ok) {
                     renderSummaryResult(data);
                 } else {
-                    showToast(data.detail || "Failed to process PDF.", "error");
+                    const message = data.detail || "Failed to process PDF.";
+                    renderSummaryError(message);
+                    showToast(message, "error");
                 }
             } catch (err) {
                 toggleLoader('summary-output-card', false);
+                renderSummaryError("Network connection error. Please check that the backend is running.");
                 showToast("Network connection error.", "error");
             }
         } else {
             // Text summary
-            const notes = notesInput.value.trim();
             if (!notes) {
+                renderSummaryError("Please enter notes or upload a PDF first.");
                 showToast("Please enter notes or upload a PDF first.", "error");
                 return;
             }
@@ -636,10 +656,13 @@ function initSummaryPage() {
                 if (res.ok) {
                     renderSummaryResult(data);
                 } else {
-                    showToast(data.detail || "Failed to summarize text.", "error");
+                    const message = data.detail || "Failed to summarize text.";
+                    renderSummaryError(message);
+                    showToast(message, "error");
                 }
             } catch (err) {
                 toggleLoader('summary-output-card', false);
+                renderSummaryError("Network connection error. Please check that the backend is running.");
                 showToast("Network connection error.", "error");
             }
         }
@@ -649,6 +672,19 @@ function initSummaryPage() {
 function renderSummaryResult(data) {
     const output = document.getElementById('summary-output-card');
     if (!output) return;
+
+    const escapeHtml = (value) => String(value ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    const asArray = (value) => Array.isArray(value) ? value : (value ? [value] : []);
+    const summary = escapeHtml(data.Summary);
+    const importantPoints = asArray(data.ImportantPoints).map(escapeHtml);
+    const formulas = asArray(data.Formulas).map(escapeHtml);
+    const definitions = asArray(data.Definitions).map(escapeHtml);
+    const examNotes = escapeHtml(data.ExamNotes);
     
     output.innerHTML = `
         <div class="output-header">
@@ -658,32 +694,32 @@ function renderSummaryResult(data) {
         <div class="output-content">
             <div style="margin-bottom: 24px;">
                 <h4 style="color: var(--color-primary); font-family: var(--font-heading); margin-bottom: 6px;">Summary Overview</h4>
-                <p id="summary-main-text" style="color: white; font-size: 0.95rem; line-height: 1.6;">${data.Summary}</p>
+                <p id="summary-main-text" style="color: white; font-size: 0.95rem; line-height: 1.6;">${summary}</p>
             </div>
             
-            ${data.ImportantPoints.length > 0 ? `
+            ${importantPoints.length > 0 ? `
                 <div style="margin-bottom: 20px;">
                     <h4 style="color: var(--color-purple); font-family: var(--font-heading); margin-bottom: 6px;">Key Takeaways</h4>
                     <ul style="margin-left: 20px;">
-                        ${data.ImportantPoints.map(pt => `<li style="margin-bottom: 6px; color: var(--color-text-main);">${pt}</li>`).join('')}
+                        ${importantPoints.map(pt => `<li style="margin-bottom: 6px; color: var(--color-text-main);">${pt}</li>`).join('')}
                     </ul>
                 </div>
             ` : ''}
             
-            ${data.Formulas.length > 0 ? `
+            ${formulas.length > 0 ? `
                 <div style="margin-bottom: 20px;">
                     <h4 style="color: var(--color-blue); font-family: var(--font-heading); margin-bottom: 6px;">Key Formulas & Equations</h4>
                     <ul style="list-style-type: none; padding-left: 0;">
-                        ${data.Formulas.map(f => `<li style="margin-bottom: 8px; font-family: monospace; background: rgba(59,130,246,0.1); border: 1px dashed rgba(59,130,246,0.3); padding: 8px 12px; border-radius: 6px;">${f}</li>`).join('')}
+                        ${formulas.map(f => `<li style="margin-bottom: 8px; font-family: monospace; background: rgba(59,130,246,0.1); border: 1px dashed rgba(59,130,246,0.3); padding: 8px 12px; border-radius: 6px;">${f}</li>`).join('')}
                     </ul>
                 </div>
             ` : ''}
             
-            ${data.Definitions.length > 0 ? `
+            ${definitions.length > 0 ? `
                 <div style="margin-bottom: 20px;">
                     <h4 style="color: var(--color-indigo); font-family: var(--font-heading); margin-bottom: 6px;">Core Terminology & Definitions</h4>
                     <div style="display: flex; flex-direction: column; gap: 8px;">
-                        ${data.Definitions.map(d => {
+                        ${definitions.map(d => {
                             const parts = d.split(':');
                             const term = parts[0] || 'Term';
                             const desc = parts.slice(1).join(':') || '';
@@ -695,12 +731,31 @@ function renderSummaryResult(data) {
                 </div>
             ` : ''}
             
-            ${data.ExamNotes ? `
+            ${examNotes ? `
                 <div style="background: rgba(16, 185, 129, 0.05); border: 1px solid rgba(16, 185, 129, 0.2); border-left: 4px solid var(--color-success); padding: 16px; border-radius: 8px; margin-top: 24px;">
                     <h4 style="color: var(--color-success); font-family: var(--font-heading); margin-bottom: 6px; font-size: 0.95rem;">Exam & Study Tips</h4>
-                    <p style="font-size: 0.88rem; color: var(--color-text-muted); line-height: 1.5;">${data.ExamNotes}</p>
+                    <p style="font-size: 0.88rem; color: var(--color-text-muted); line-height: 1.5;">${examNotes}</p>
                 </div>
             ` : ''}
+        </div>
+    `;
+}
+
+function renderSummaryError(message) {
+    const output = document.getElementById('summary-output-card');
+    if (!output) return;
+    const safeMessage = String(message || 'Something went wrong while summarizing content.')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+
+    output.innerHTML = `
+        <div class="output-placeholder">
+            <div class="output-placeholder-icon" style="color: rgba(239, 68, 68, 0.18);"><i class="fa-solid fa-triangle-exclamation"></i></div>
+            <h4>Could Not Summarize</h4>
+            <p style="font-size: 0.85rem; color: var(--color-text-muted); margin-top: 4px;">${safeMessage}</p>
         </div>
     `;
 }

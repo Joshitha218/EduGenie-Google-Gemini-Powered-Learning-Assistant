@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File, Form
 from sqlalchemy.orm import Session
 import json
+import logging
 from typing import Dict, Any, List
 
 from backend.app.database import get_db
@@ -24,6 +25,37 @@ from backend.app.services.lamini import get_lamini_explanation
 from backend.app.utils.pdf_parser import extract_text_from_pdf
 
 router = APIRouter(prefix="/api/modules", tags=["Learning Modules"])
+logger = logging.getLogger(__name__)
+
+def _as_string(value: Any) -> str:
+    if value is None:
+        return ""
+    if isinstance(value, str):
+        return value.strip()
+    if isinstance(value, list):
+        return "\n".join(_as_string(item) for item in value if _as_string(item))
+    if isinstance(value, dict):
+        return "\n".join(f"{key}: {_as_string(val)}" for key, val in value.items())
+    return str(value).strip()
+
+def _as_string_list(value: Any) -> List[str]:
+    if value is None:
+        return []
+    if isinstance(value, list):
+        return [_as_string(item) for item in value if _as_string(item)]
+    text = _as_string(value)
+    return [text] if text else []
+
+def _normalize_summary_data(ai_data: Dict[str, Any]) -> Dict[str, Any]:
+    normalized = {
+        "Summary": _as_string(ai_data.get("Summary")),
+        "ImportantPoints": _as_string_list(ai_data.get("ImportantPoints")),
+        "Formulas": _as_string_list(ai_data.get("Formulas")),
+        "Definitions": _as_string_list(ai_data.get("Definitions")),
+        "ExamNotes": _as_string(ai_data.get("ExamNotes")),
+    }
+    logger.info("Final parsed summary response: %s", normalized)
+    return normalized
 
 # =====================================================================
 # Q&A MODULE
@@ -170,7 +202,10 @@ def summarize_text(
     current_user: User = Depends(get_current_user_api),
     db: Session = Depends(get_db)
 ):
-    if not payload.Notes:
+    notes = (payload.Notes or "").strip()
+    logger.info("Summary text request received. Text length=%s", len(notes))
+
+    if not notes:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Content field 'Notes' is empty."
@@ -178,7 +213,7 @@ def summarize_text(
 
     # 1. Create UserQuery
     # Limit stored text preview in DB if notes are extremely long
-    preview = payload.Notes[:200] + "..." if len(payload.Notes) > 200 else payload.Notes
+    preview = notes[:200] + "..." if len(notes) > 200 else notes
     db_query = UserQuery(
         UserID=current_user.UserID,
         QueryType="summarize",
@@ -189,12 +224,12 @@ def summarize_text(
     db.refresh(db_query)
 
     # 2. Get Gemini Summary
-    ai_data = summarize_gemini_content(payload.Notes)
+    ai_data = _normalize_summary_data(summarize_gemini_content(notes))
 
     # 3. Store Summary record & AIResponse
     db_summary = SummaryModel(
         QueryID=db_query.QueryID,
-        OriginalText=payload.Notes,
+        OriginalText=notes,
         SummaryText=ai_data.get("Summary", ""),
         ModelUsed="Gemini 1.5 Pro"
     )
@@ -209,11 +244,7 @@ def summarize_text(
     db.commit()
 
     return SummaryPostResponse(
-        Summary=ai_data.get("Summary", ""),
-        ImportantPoints=ai_data.get("ImportantPoints", []),
-        Formulas=ai_data.get("Formulas", []),
-        Definitions=ai_data.get("Definitions", []),
-        ExamNotes=ai_data.get("ExamNotes", "")
+        **ai_data
     )
 
 @router.post("/summarize/pdf", response_model=SummaryPostResponse)
@@ -222,7 +253,10 @@ async def summarize_pdf(
     current_user: User = Depends(get_current_user_api),
     db: Session = Depends(get_db)
 ):
-    if not file.filename.endswith(".pdf"):
+    filename = file.filename or ""
+    logger.info("Summary PDF request received. File name=%s", filename)
+
+    if not filename.lower().endswith(".pdf"):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Invalid file format. Please upload a PDF file."
@@ -231,26 +265,28 @@ async def summarize_pdf(
     try:
         # Read file bytes
         file_bytes = await file.read()
+        logger.info("PDF bytes received. File name=%s Size=%s", filename, len(file_bytes))
         extracted_text = extract_text_from_pdf(file_bytes)
+        logger.info("Extracted PDF text length=%s", len(extracted_text))
         
-        if not extracted_text:
+        if not extracted_text.strip():
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Could not extract any readable text from the uploaded PDF."
+                detail="No readable text found in this PDF. Please upload a text-based PDF."
             )
             
         # 1. Create UserQuery
         db_query = UserQuery(
             UserID=current_user.UserID,
             QueryType="summarize",
-            QueryText=f"PDF Summary: {file.filename}"
+            QueryText=f"PDF Summary: {filename}"
         )
         db.add(db_query)
         db.commit()
         db.refresh(db_query)
 
         # 2. Get Gemini Summary
-        ai_data = summarize_gemini_content(extracted_text)
+        ai_data = _normalize_summary_data(summarize_gemini_content(extracted_text))
 
         # 3. Store Summary record & AIResponse
         # Storing first 50,000 characters of PDF in DB to prevent overflow
@@ -271,14 +307,14 @@ async def summarize_pdf(
         db.commit()
 
         return SummaryPostResponse(
-            Summary=ai_data.get("Summary", ""),
-            ImportantPoints=ai_data.get("ImportantPoints", []),
-            Formulas=ai_data.get("Formulas", []),
-            Definitions=ai_data.get("Definitions", []),
-            ExamNotes=ai_data.get("ExamNotes", "")
+            **ai_data
         )
+    except HTTPException:
+        db.rollback()
+        raise
     except Exception as e:
         db.rollback()
+        logger.exception("Error processing PDF summary request.")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Error processing PDF: {str(e)}"

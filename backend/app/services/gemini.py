@@ -2,15 +2,19 @@ import os
 import json
 import logging
 import time
+import re
 from typing import Dict, Any, List
 import google.generativeai as genai
 from backend.app.config import settings
 
 logger = logging.getLogger(__name__)
 
+def _get_gemini_api_key() -> str:
+    return settings.GEMINI_API_KEY or os.environ.get("GEMINI_API_KEY", "")
+
 # Configure Gemini API
 def initialize_gemini():
-    api_key = settings.GEMINI_API_KEY or os.environ.get("GEMINI_API_KEY")
+    api_key = _get_gemini_api_key()
     if api_key:
         try:
             genai.configure(api_key=api_key)
@@ -29,8 +33,10 @@ def _call_gemini_with_retry(prompt: str, model_name: str = "gemini-2.5-flash", j
     """
     Helper function to invoke Gemini model with exponential backoff retry logic.
     """
-    if not settings.GEMINI_API_KEY:
+    api_key = _get_gemini_api_key()
+    if not api_key:
         raise ValueError("Gemini API Key is not configured.")
+    genai.configure(api_key=api_key)
     
     for attempt in range(retries):
         try:
@@ -58,20 +64,25 @@ def _parse_json_safely(text: str) -> Dict[str, Any]:
     """
     Cleans and parses JSON from the response text.
     """
+    logger.info("Gemini raw response: %s", text)
     text = text.strip()
-    # Remove markdown code fences if present
-    if text.startswith("```json"):
-        text = text[7:]
-    if text.endswith("```"):
-        text = text[:-3]
-    text = text.strip()
+    fenced_json = re.search(r"```(?:json)?\s*(.*?)\s*```", text, flags=re.IGNORECASE | re.DOTALL)
+    if fenced_json:
+        text = fenced_json.group(1).strip()
+    elif not text.startswith(("{", "[")):
+        json_object = re.search(r"(\{.*\})", text, flags=re.DOTALL)
+        if json_object:
+            text = json_object.group(1).strip()
     
     try:
-        return json.loads(text)
+        parsed = json.loads(text)
+        if not isinstance(parsed, dict):
+            raise ValueError("AI JSON response must be an object.")
+        logger.info("Gemini parsed response: %s", parsed)
+        return parsed
     except json.JSONDecodeError as e:
         logger.error(f"Failed to parse JSON response: {text}. Error: {str(e)}")
-        # Attempt minimal regex or manual cleanup if parsing failed
-        raise ValueError("Response from AI was not valid JSON.")
+        raise ValueError(f"Response from AI was not valid JSON: {str(e)}")
 
 # =====================================================================
 # MODULE SERVICE IMPLEMENTATIONS
@@ -82,7 +93,7 @@ def ask_gemini_qa(question: str) -> Dict[str, Any]:
     Q&A Module: Answers questions, returns related concepts and educational context.
     Uses gemini-1.5-pro (or gemini-1.5-flash as fallback).
     """
-    if not settings.GEMINI_API_KEY:
+    if not _get_gemini_api_key():
         return get_simulated_qa(question)
         
     prompt = f"""
@@ -106,7 +117,7 @@ def generate_gemini_quiz(topic: str, difficulty: str, count: int) -> Dict[str, A
     Quiz Module: Generates multiple-choice quizzes (MCQs, Options, Correct Answer, Explanation).
     Uses gemini-1.5-pro.
     """
-    if not settings.GEMINI_API_KEY:
+    if not _get_gemini_api_key():
         return get_simulated_quiz(topic, difficulty, count)
         
     prompt = f"""
@@ -138,7 +149,7 @@ def summarize_gemini_content(text: str) -> Dict[str, Any]:
     Summary Module: Summarizes study notes or PDF text.
     Uses gemini-1.5-pro.
     """
-    if not settings.GEMINI_API_KEY:
+    if not _get_gemini_api_key():
         return get_simulated_summary(text)
         
     prompt = f"""
@@ -150,7 +161,7 @@ def summarize_gemini_content(text: str) -> Dict[str, Any]:
     - "ImportantPoints": A list of key points or bulleted takeaways.
     - "Formulas": A list of important equations, formulas, or rules mentioned (if none, return empty list).
     - "Definitions": A list of key terminology and definitions extracted from the text in the format "Term: Definition".
-    - "ExamNotes": A list of exam tips, expected questions, or memory aids based on this text.
+    - "ExamNotes": A single string containing exam tips, expected questions, or memory aids based on this text.
 
     Study Material Content:
     {text}
@@ -167,7 +178,7 @@ def generate_gemini_learning_path(skill_name: str) -> Dict[str, Any]:
     Learning Path Module: Generates roadmaps (Beginner, Intermediate, Advanced) and career recommendations.
     Uses gemini-1.5-pro.
     """
-    if not settings.GEMINI_API_KEY:
+    if not _get_gemini_api_key():
         return get_simulated_learning_path(skill_name)
         
     prompt = f"""
